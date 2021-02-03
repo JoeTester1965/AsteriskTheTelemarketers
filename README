@@ -1,0 +1,49 @@
+Features:
+
+Run a caller through a static voice script that you can easily change using text to speech.
+
+Play DTMF when their their intro bots say 'Press x' to .... - they will then assume you are a humannz and worth calling!
+
+Add in clever logic, at the mo, on the throw of a dice this will echo back their last sentence from them, in your voice (-;)
+
+Credits:
+
+https://raspberrytips.com/install-asterisk-on-raspberry-pi/
+
+https://stackoverflow.com/questions/42439846/how-to-allow-inbound-calls-in-pjsip-and-asterisk-13
+
+https://crosstalksolutions.com/howto-pwn-telemarketers-with-lenny/
+
+Using:
+
+1. sudo apt install these:
+
+net-tools
+tshark
+asterisk
+unzipc
+dos2unix
+python3-pip
+mpg123
+
+2. sudo pip3 install that:
+
+sudo pip3 install
+pyst2
+google-cloud-texttospeech
+google-cloud-speech
+google-cloud-storage
+
+3. Place your google cloud speech api 'credentials.json' file in the location indicted by <ConfigFiles/your-config-file>.
+
+4. Set your external IP address in <ConfigFiles/your-config-file>, (am assuming some sort of NAT in the way)
+ 	
+   Can get with "What is my IP address" sites or 'dig +short myip.opendns.com @resolver1.opendns.com' 
+
+5. Check if needed that your firewall allows inbound sip paramaters as in <ConfigFiles/your-config-file> : is 5060 UDP by default
+
+6. run 'sudo python3 configure.py [ConfigFiles/your-config-file]'
+
+7. run 'cd Asterisk/deploy;sudo bash ./deploy.sh'
+
+8. To log SIP for wireshark analysis : 'sudo nohup tshark -l -i eth0 -f "udp port 5060" -w sip.pcap &'

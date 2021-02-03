@@ -26,11 +26,7 @@ Using:
 
 1. sudo apt install these:
 
-net-tools
-tshark
 asterisk
-unzipc
-dos2unix
 python3-pip
 mpg123
 

@@ -1,3 +1,5 @@
+Got annoyed by unwanted calls and the cheek of increasingly tech-savvy telemarketers using your initial voice and menu interactions to measure their mark. Lets play their game back on them. My lockdown effort uses a raspberry pi, free or cheap SIP line with a local number, Asterisk, inspiration from Lenny, poor python skills and some cloud AI creds to start the run-around
+
 Features:
 
 Run a caller through a static voice script that you can easily change using text to speech.

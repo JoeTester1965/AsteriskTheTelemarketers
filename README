@@ -10,7 +10,7 @@ Features:
 
 Run a caller through a static voice script that you can easily change using text to speech.
 
-Play DTMF when their their intro bots say 'Press x' to .... - they will then assume you are a humannz and worth calling!
+Play DTMF when their their intro bots say 'Press x' to .... - they will then assume you are a humanz and worth calling!
 
 Add in clever logic, at the mo, on the throw of a dice this will echo back their last sentence from them, in your voice (-;)
 
@@ -32,7 +32,6 @@ mpg123
 
 2. sudo pip3 install that:
 
-sudo pip3 install
 pyst2
 google-cloud-texttospeech
 google-cloud-speech

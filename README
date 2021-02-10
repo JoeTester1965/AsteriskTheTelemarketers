@@ -50,3 +50,5 @@ google-cloud-storage
 7. run 'cd Asterisk/deploy;sudo bash ./deploy.sh'
 
 8. To log SIP for wireshark analysis : 'sudo nohup tshark -l -i eth0 -f "udp port 5060" -w sip.pcap &'
+
+9. To combine mono audio channels in Asterisk monitor directory for posterity, use sox -M -c 1 filename-in.wav -c1 filename-out.wav ~/lolz.wav

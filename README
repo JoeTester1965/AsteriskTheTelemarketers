@@ -35,7 +35,6 @@ mpg123
 pyst2
 google-cloud-texttospeech
 google-cloud-speech
-google-cloud-storage
 
 3. Place your google cloud speech api 'credentials.json' file in the location indicted by <ConfigFiles/your-config-file>.
 

@@ -1,0 +1,60 @@
+Features:
+
+Run a caller through a static voice script that you can easily change using text to speech.
+
+Play DTMF when their their intro bots say 'Press x' to .... - they will then assume you are humanz and worth calling!
+
+Add in optional AI conversational twists using great (but pay for) Google speech APIs (see do_stuff_based_on_transcription in AsteriskTheSpammers.py). 
+
+Hat tips:
+
+https://www.youtube.com/results?search_query=lenny+asterisk
+
+https://crosstalksolutions.com/howto-pwn-telemarketers-with-lenny/
+
+https://raspberrytips.com/install-asterisk-on-raspberry-pi/
+
+https://stackoverflow.com/questions/42439846/how-to-allow-inbound-calls-in-pjsip-and-asterisk-13
+
+Installing
+----------
+
+-> sudo apt install these:
+
+asterisk
+mpg123
+tshark
+dnsutils
+
+-> sudo python3 -m pip install those:
+
+pyst2
+google-cloud-texttospeech 
+google-cloud-speech
+numpy
+
+-> Place your (optional) google cloud speech api 'credentials.json' file in the location 
+	indicted by <ConfigFiles/example> if you want AI stuff.
+
+-> Put in your SIP provider details into <ConfigFiles/example>
+
+my_incoming_id = 0123456789
+my_local_network_address = 192.168.1.0/24
+my_client_uri = sip:0123456789@sipgate.co.uk:5060
+my_server_uri = sip:sipgate.co.uk:5060
+my_username = 0123456789
+my_password = potatocrayfishbake
+my_from_user = 0123456789
+my_from_domain = sipgate.co.uk 
+my_ethernet_interface = eth0
+
+-> python3 ./configure.py ConfigFiles/your-config-file  
+
+-> cd Asterisk/deploy  
+
+-> sudo bash ./deploy.sh
+
+For some reason, I could not get EAGI to work for access to incoming audio, hence the use of Monitor() 
+	in the dialplan, and lock_onto_incoming_audio_file() in AsteriskTheSpammers.py. 
+		Better answers on a postcard please.
+	

@@ -50,7 +50,7 @@ waittheyspeak_timeout_bytes = int(config[my_config_label]["waittheyspeak_timeout
 files_in_file_sequence = int(config[my_config_label]["files_in_file_sequence"]) 
 theystopppedspeaking_timeout_bytes = int(config[my_config_label]["theystopppedspeaking_timeout_bytes"])
 audio_read_granularity = int(config[my_config_label]["audio_read_granularity"])
-available_context_leeway = int(config[my_config_label]["available_context_leeway"])
+context_leeway_bytes = int(config[my_config_label]["context_leeway_bytes"])
 asynch_sleep_seconds = float(config[my_config_label]["asynch_sleep_seconds"])
 timeout_seconds_no_data_read_from_file = float(config[my_config_label]["timeout_seconds_no_data_read_from_file"])
 cloud_processing_audio_file_size_limit = int(config[my_config_label]["cloud_processing_audio_file_size_limit"])
@@ -124,6 +124,7 @@ def process_WaitTheySpeak():
 	global files_in_file_sequence
 	global theystopppedspeaking_timeout_bytes
 	global audio_read_granularity
+	global context_leeway_bytes
 
 	incoming_audio_file = lock_onto_incoming_audio_file()
 
@@ -267,8 +268,8 @@ def process_WaitTheySpeak():
 
 	available_context_leeway = bytes_in_file - speaking_bytes_to_process;
 
-	if available_context_leeway > 32000:
-		available_context_leeway = 32000
+	if available_context_leeway > context_leeway_bytes:
+		available_context_leeway = context_leeway_bytes
 
 	rewind_bytes = bytes_in_file - audio_first_noisy_marker + available_context_leeway;
 

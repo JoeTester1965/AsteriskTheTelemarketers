@@ -11,6 +11,7 @@ audio_average_absolute_power_threshold_int16 = 200
 waittheyspeak_timeout_bytes = 64000
 theystopppedspeaking_timeout_bytes = 32000
 audio_read_granularity = 4000
+available_context_leeway = 32000
 asynch_sleep_seconds = 0.1
 timeout_seconds_no_data_read_from_file = 5.0
 cloud_processing_audio_file_size_limit = 240000

@@ -18,7 +18,7 @@ config.read(config_file)
 
 list = config.items("Asterisk")
 
-files_to_parse = ["extensions.conf", "pjsip.conf", "deploy.sh", "sipmononitor.service", "asteriskthespammers.service"]
+files_to_parse = ["extensions.conf", "pjsip.conf", "deploy.sh"]
 
 try:
 	os.mkdir('Asterisk/deploy')

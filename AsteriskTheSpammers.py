@@ -50,19 +50,19 @@ waittheyspeak_timeout_bytes = int(config[my_config_label]["waittheyspeak_timeout
 files_in_file_sequence = int(config[my_config_label]["files_in_file_sequence"]) 
 theystopppedspeaking_timeout_bytes = int(config[my_config_label]["theystopppedspeaking_timeout_bytes"])
 audio_read_granularity = int(config[my_config_label]["audio_read_granularity"])
+available_context_leeway = int(config[my_config_label]["available_context_leeway"])
 asynch_sleep_seconds = float(config[my_config_label]["asynch_sleep_seconds"])
 timeout_seconds_no_data_read_from_file = float(config[my_config_label]["timeout_seconds_no_data_read_from_file"])
 cloud_processing_audio_file_size_limit = int(config[my_config_label]["cloud_processing_audio_file_size_limit"])
 host_address = config[my_config_label]["host_address"]
 port_number = int(config[my_config_label]["port_number"])
 
-
 logging.basicConfig(    handlers=[
                                 logging.FileHandler(my_logfile),
                                 logging.StreamHandler()],
                         format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
                         datefmt='%Y-%m-%d:%H:%M:%S',
-                        level=logging.INFO)
+                        level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +141,7 @@ def process_WaitTheySpeak():
 	else:
 		audio_source = open(incoming_audio_file, 'rb')
 		audio_source.seek(0, os.SEEK_END)
-
+		
 	activity_heard = False	
 	
 	audio_first_noisy_marker = -1
@@ -265,10 +265,14 @@ def process_WaitTheySpeak():
 	
 	bytes_in_file = os.stat(incoming_audio_file).st_size
 
-	rewind_bytes = bytes_in_file - audio_first_noisy_marker + 48000; # in case missed some context before re-entering here
+	available_context_leeway = bytes_in_file - speaking_bytes_to_process;
 
-	if rewind_bytes > bytes_in_file:
-		rewind_bytes = bytes_in_file
+	if available_context_leeway > 32000:
+		available_context_leeway = 32000
+
+	rewind_bytes = bytes_in_file - audio_first_noisy_marker + available_context_leeway;
+
+	speaking_bytes_to_process = speaking_bytes_to_process + available_context_leeway;
 
 	if incoming_audio_file == "microphone":
 		microphone_file_handle.close()

@@ -19,8 +19,6 @@ import subprocess
 import logging
 
 file_sequence=1
-have_asked_areyoustillthere=False
-timer_start=0
 
 if len(sys.argv) != 2:
 	print("I need config file location as first paramater in command line")
@@ -51,18 +49,18 @@ files_in_file_sequence = int(config[my_config_label]["files_in_file_sequence"])
 theystopppedspeaking_timeout_bytes = int(config[my_config_label]["theystopppedspeaking_timeout_bytes"])
 audio_read_granularity = int(config[my_config_label]["audio_read_granularity"])
 context_leeway_bytes = int(config[my_config_label]["context_leeway_bytes"])
-asynch_sleep_seconds = float(config[my_config_label]["asynch_sleep_seconds"])
 timeout_seconds_no_data_read_from_file = float(config[my_config_label]["timeout_seconds_no_data_read_from_file"])
 cloud_processing_audio_file_size_limit = int(config[my_config_label]["cloud_processing_audio_file_size_limit"])
 host_address = config[my_config_label]["host_address"]
 port_number = int(config[my_config_label]["port_number"])
+min_valid_buffer_size = int(config[my_config_label]["min_valid_buffer_size"])
 
 logging.basicConfig(    handlers=[
                                 logging.FileHandler(my_logfile),
                                 logging.StreamHandler()],
                         format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
                         datefmt='%Y-%m-%d:%H:%M:%S',
-                        level=logging.DEBUG)
+                        level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -106,13 +104,15 @@ def transcribe_audio(speech_file):
 def test_is_audio_activity(buffer, threshold):
    
 	retval = False
+
+	if len(buffer) > min_valid_buffer_size:
+
+		audio_bytes = numpy.frombuffer(buffer, dtype=numpy.int16)
+		average_absolute_power = numpy.sum(numpy.absolute(audio_bytes)) / audio_bytes.size
+		logger.debug("average_absolute_power : " + str(average_absolute_power))
 	
-	audio_bytes = numpy.frombuffer(buffer, dtype=numpy.int16)
-	average_absolute_power = numpy.sum(numpy.absolute(audio_bytes)) / audio_bytes.size
-	logger.debug("average_absolute_power : " + str(average_absolute_power))
-	
-	if (average_absolute_power > threshold):
-		retval = True
+		if (average_absolute_power > threshold):
+			retval = True
 
 	return retval
 
@@ -149,14 +149,10 @@ def process_WaitTheySpeak():
 
 	total_bytes_processed = 0;
 
-	global have_asked_areyoustillthere
-	global timer_start
-
 	timer_start = time.time()
 	logger.debug("timer_start set to %s", repr(timer_start))
 
 	while activity_heard == False:
-		time.sleep(asynch_sleep_seconds)
 		while True:
 			try:
 				if incoming_audio_file == "microphone":
@@ -167,12 +163,9 @@ def process_WaitTheySpeak():
 					buffer = audio_source.read(audio_read_granularity)
 
 				if buffer:
-					if len(buffer) < 1000: # on Target platform can get false triggers on small initial bytes at start of file
-						logger.debug("Ignoring %d bytes returned from file read at %s", len(buffer), repr(timer_start))
-					else:
-						timer_start = time.time()
-						logger.debug("%d bytes returned from file read at %s", len(buffer), repr(timer_start))
-						break
+					timer_start = time.time()
+					logger.debug("%d bytes returned from file read at %s", len(buffer), repr(timer_start))
+					break
 				else:
 					timer_end = time.time()
 					timer_delta =  timer_end - timer_start
@@ -194,17 +187,9 @@ def process_WaitTheySpeak():
 				logger.info("*** You started speaking ***")
 
 		if	total_bytes_processed > waittheyspeak_timeout_bytes:
-			if have_asked_areyoustillthere:
-				have_asked_areyoustillthere = False
-				logger.info("Call state transitioned to NewCall")
-				return("ENDCALL")
-			else:
-				have_asked_areyoustillthere = True
 				retval="FILE:" + areyoustillthere_file
 				total_bytes_processed = 0
 				return(retval) 
-	
-	logger.info("Call state transitioned to TheyAreSpeaking")
 	
 	audio_last_noisy_marker = audio_first_noisy_marker
 
@@ -216,7 +201,6 @@ def process_WaitTheySpeak():
 	logger.debug("timer_start set to %s", repr(timer_start))
 
 	while activity_heard == True:
-		time.sleep(asynch_sleep_seconds)
 		while True:
 			try:
 				if incoming_audio_file == "microphone":
@@ -260,7 +244,7 @@ def process_WaitTheySpeak():
 
 	speaking_bytes_to_process =  audio_last_noisy_marker - audio_first_noisy_marker
 
-	# Put in sensible limits for cloud processing ~ 30s
+	# Put in sensible limits for cloud processing
 	if speaking_bytes_to_process > cloud_processing_audio_file_size_limit:
 		speaking_bytes_to_process = cloud_processing_audio_file_size_limit
 	
@@ -333,6 +317,16 @@ def do_stuff_based_on_transcription(transcription_text):
 				"seven" : "FILE:DTMF/7",
 				"eight" : "FILE:DTMF/8",
 				"nine" : "FILE:DTMF/9",
+				"0" : "FILE:DTMF/0",
+				"1" : "FILE:DTMF/1",
+				"2" : "FILE:DTMF/2",
+				"3" : "FILE:DTMF/3",
+				"4" : "FILE:DTMF/4",
+				"5" : "FILE:DTMF/5",
+				"6" : "FILE:DTMF/6",
+				"7" : "FILE:DTMF/7",
+				"8" : "FILE:DTMF/8",
+				"9" : "FILE:DTMF/9",
 				"star" : "FILE:DTMF/10",
 				"hash" : "FILE:DTMF/11",
 				"pound" : "FILE:DTMF/11"
@@ -365,14 +359,14 @@ def write_transcription_audioFile(text, filename):
 	filename = my_audio_out_directory + filename
 	client = texttospeech.TextToSpeechClient.from_service_account_file(my_credentials_file_path)
 	synthesis_input = texttospeech.SynthesisInput(text=text)
-	voice = texttospeech.VoiceSelectionParams(language_code="en-IN", name="en-IN-Wavenet-B", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL)
-	audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3, speaking_rate=0.89)
+	voice = texttospeech.VoiceSelectionParams(language_code="en-GB", name="en-GB-Wavenet-B", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL)
+	audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3, speaking_rate=0.89, pitch=2.4)
 	response = client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
 	with open(filename, "wb") as out:
 		out.write(response.audio_content)
 
 def create_static_conversation_files():
-	write_transcription_audioFile("Hello!","hello.mp3")
+	write_transcription_audioFile("Hello, this is Kenny speaking!","hello.mp3")
 	write_transcription_audioFile("Sorry. I cannot hear you. Are you still there?" ,"areyoustillthere.mp3")
 	write_transcription_audioFile("My, that sounds most interesting.","1.mp3")
 	write_transcription_audioFile("Someone did call about the same thing last week, was that you?","2.mp3")

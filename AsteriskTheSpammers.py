@@ -265,7 +265,7 @@ def process_WaitTheySpeak():
 	
 	bytes_in_file = os.stat(incoming_audio_file).st_size
 
-	rewind_bytes = bytes_in_file - audio_first_noisy_marker + (audio_read_granularity*2);
+	rewind_bytes = bytes_in_file - audio_first_noisy_marker + 48000; # in case missed some context before re-entering here
 
 	if rewind_bytes > bytes_in_file:
 		rewind_bytes = bytes_in_file

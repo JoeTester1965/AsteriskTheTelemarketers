@@ -181,15 +181,16 @@ def process_WaitTheySpeak():
 
 		activity_heard = test_is_audio_activity(buffer, audio_average_absolute_power_threshold_int16)
 	
+		if	total_bytes_processed > waittheyspeak_timeout_bytes:
+				retval="FILE:" + areyoustillthere_file
+				total_bytes_processed = 0
+				return(retval) 
+		
 		if activity_heard:
 			if audio_first_noisy_marker == -1:
 				audio_first_noisy_marker = os.stat(incoming_audio_file).st_size
 				logger.info("*** You started speaking ***")
 
-		if	total_bytes_processed > waittheyspeak_timeout_bytes:
-				retval="FILE:" + areyoustillthere_file
-				total_bytes_processed = 0
-				return(retval) 
 	
 	audio_last_noisy_marker = audio_first_noisy_marker
 
@@ -339,14 +340,14 @@ def do_stuff_based_on_transcription(transcription_text):
 				return(retval)
 
 	elif any(re.findall(r'stupid|whatever', transcription_text, re.IGNORECASE)):
-		audo_out_file = "echo.mp3"
+		audo_out_file = "echo"
 		if transcription_text:
 			write_transcription_audioFile("Did you really say " + transcription_text + "?", audo_out_file)
 			retval = "FILE:echo"
 			return(retval)
 
 	elif randint(1,6) == 1: # roll a dice
-		audo_out_file = "echo.mp3"
+		audo_out_file = "echo"
 		if transcription_text:
 			write_transcription_audioFile("Did you say " + transcription_text + "?", audo_out_file)
 			retval = "FILE:echo"
@@ -360,28 +361,37 @@ def write_transcription_audioFile(text, filename):
 	client = texttospeech.TextToSpeechClient.from_service_account_file(my_credentials_file_path)
 	synthesis_input = texttospeech.SynthesisInput(text=text)
 	voice = texttospeech.VoiceSelectionParams(language_code="en-GB", name="en-GB-Wavenet-B", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL)
-	audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3, speaking_rate=0.89, pitch=2.4)
+	audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.LINEAR16, speaking_rate=0.89, pitch=2.4, sample_rate_hertz=8000)
 	response = client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
-	with open(filename, "wb") as out:
+	
+	wav_filename=filename+".wav"
+	with open(wav_filename, "wb") as out:
 		out.write(response.audio_content)
 
+	sln_filename=filename+".sln"
+	with open(sln_filename, "wb") as out:
+		audio = bytearray(response.audio_content)
+		audio_without_wav_header = audio[44:]
+		out.write(audio_without_wav_header)
+
+
 def create_static_conversation_files():
-	write_transcription_audioFile("Hello, this is Kenny speaking!","hello.mp3")
-	write_transcription_audioFile("Sorry. I cannot hear you. Are you still there?" ,"areyoustillthere.mp3")
-	write_transcription_audioFile("My, that sounds most interesting.","1.mp3")
-	write_transcription_audioFile("Someone did call about the same thing last week, was that you?","2.mp3")
-	write_transcription_audioFile("Excuse me but what did you say your name was again?","3.mp3")
-	write_transcription_audioFile("It's funny that you should call about this, my neighbour mentioned that yesterday.","4.mp3")
-	write_transcription_audioFile("Oh boy! I never knew that was possible." ,"5.mp3")
-	write_transcription_audioFile("That does need some consideration." ,"6.mp3")
-	write_transcription_audioFile("Could you say that again, please?" ,"7.mp3")
-	write_transcription_audioFile("Oh! I see! That sounds fine.","8.mp3")
-	write_transcription_audioFile("Sorry which company did you say that you were calling from?","9.mp3")
-	write_transcription_audioFile("The last time someone called up and spoke to me about that, something came on the telly and I had to hang up.","10.mp3")
-	write_transcription_audioFile("Since you put it that way, please do carry on.", "11.mp3")
-	write_transcription_audioFile("Well, what with coronavirus and all that, we all need more patience and understanding.", "12.mp3")
-	write_transcription_audioFile("That does sound great, what needs to happen next?" ,"13.mp3")
-	write_transcription_audioFile("Sorry I am a bit confused can you say that again?","14.mp3")
+	write_transcription_audioFile("Hello, this is Kenny speaking!","hello")
+	write_transcription_audioFile("Sorry. I cannot hear you. Are you still there?" ,"areyoustillthere")
+	write_transcription_audioFile("My, that sounds most interesting.","1")
+	write_transcription_audioFile("Someone did call about the same thing last week, was that you?","2")
+	write_transcription_audioFile("Excuse me but what did you say your name was again?","3")
+	write_transcription_audioFile("It's funny that you should call about this, my neighbour mentioned that yesterday.","4")
+	write_transcription_audioFile("Oh boy! I never knew that was possible." ,"5")
+	write_transcription_audioFile("That does need some consideration." ,"6")
+	write_transcription_audioFile("Could you say that again, please?" ,"7")
+	write_transcription_audioFile("Oh! I see! That sounds fine.","8")
+	write_transcription_audioFile("Sorry which company did you say that you were calling from?","9")
+	write_transcription_audioFile("The last time someone called up and spoke to me about that, something came on the telly and I had to hang up.","10")
+	write_transcription_audioFile("Since you put it that way, please do carry on.", "11")
+	write_transcription_audioFile("Well, what with coronavirus and all that, we all need more patience and understanding.", "12")
+	write_transcription_audioFile("That does sound great, what needs to happen next?" ,"13")
+	write_transcription_audioFile("Sorry I am a bit confused can you say that again?","14")
 
 #create_static_conversation_files() # remake static files if neccecary
 

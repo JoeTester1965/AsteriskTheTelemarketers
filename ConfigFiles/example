@@ -1,0 +1,36 @@
+[AsteriskTheSpammers]
+my_incoming_audio_match = /var/spool/asterisk/monitor/audio-in-*
+my_credentials_file_path = /var/lib/asterisk/agi-bin/credentials.json
+my_logfile = /var/log/asterisk/asterisktheSpammers-messages
+my_outgoing_audio_transcription_file = /var/spool/asterisk/monitor/tmp.wav
+my_audio_out_directory = /usr/share/asterisk/sounds/en/lolz/
+hello_file = hello
+areyoustillthere_file = areyoustillthere
+files_in_file_sequence = 14
+audio_average_absolute_power_threshold_int16 = 200
+min_valid_buffer_size = 200
+waittheyspeak_timeout_bytes = 64000
+theystopppedspeaking_timeout_bytes = 16000
+audio_read_granularity = 2000
+context_leeway_bytes = 32000
+timeout_seconds_no_data_read_from_file = 5.0
+cloud_processing_audio_file_size_limit = 240000
+host_address = 127.0.0.1
+port_number = 65432
+
+[Asterisk]
+my_asterisk_dir = /etc/asterisk
+my_asterisk_spool_dir = /var/spool/asterisk
+my_asterisk_logfile_dir = /var/log/asterisk
+my_pcapfile = /var/log/asterisk/sip.pcap
+my_ethernet_interface = eth0
+my_asterisk_agi_dir=/usr/share/asterisk/agi-bin
+my_audio_out_directory = /var/lib/asterisk/sounds/en/lolz/
+my_incoming_id = 0123456789
+my_local_network_address = 192.168.1.0/24
+my_client_uri = sip:0123456789@sipgate.co.uk:5060
+my_server_uri = sip:sipgate.co.uk:5060
+my_username = 0123456789
+my_password = potatocrayfishbake
+my_from_user = 0123456789
+my_from_domain = sipgate.co.uk

@@ -53,5 +53,5 @@ my_ethernet_interface = eth0
 
 For some reason, I could not get EAGI to work for access to incoming audio, hence the use of Monitor() 
 	in the dialplan, and lock_onto_incoming_audio_file() in AsteriskTheSpammers.py. 
-		Better answers on a postcard please.
+		Just found out about that https://github.com/CyCoreSystems/audiosocket though!
 	

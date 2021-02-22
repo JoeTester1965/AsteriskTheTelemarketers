@@ -20,7 +20,6 @@ Installing
 -> sudo apt install these:
 
 asterisk
-mpg123
 tshark
 dnsutils
 

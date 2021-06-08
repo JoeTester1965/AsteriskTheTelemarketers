@@ -2,4 +2,4 @@ Do not edit these files.
 
 These are poplulated when configure.py is run using your ConfigFile and some other stuff inside.
 
-Note that configure.py creates a ne directory in here called deploy to use as explained by ../README.
+Note that configure.py creates a new directory in here called deploy to use as explained by ../README.

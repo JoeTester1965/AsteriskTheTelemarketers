@@ -4,8 +4,8 @@ if [ "$EUID" -ne 0 ];
   exit
 fi
 service asterisk stop
-killall python3 2>/dev/null
-killall tshark 2>/dev/null
+pkill -f AsteriskTheSpammers.py 2>/dev/null
+pkill -f "udp port 5060" 2>/dev/null
 cp extensions.conf my_asterisk_dir
 cp pjsip.conf my_asterisk_dir
 cp ../../agi-gateway.py my_asterisk_agi_dir
@@ -22,4 +22,3 @@ nohup tshark -l -i my_ethernet_interface -f "udp port 5060" -w my_pcapfile &
 usermod -a -G asterisk root
 chmod -R ug+rw /var/spool/asterisk
 service asterisk start
-
